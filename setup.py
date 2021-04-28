@@ -8,9 +8,10 @@ setup(
     description='Use Discord and a Raspberry Pi to control an automatic cat feeder.',
     license='MIT',
     author='Emily Zhou, Jocelyn Liu',
-    url='https://github.com/audrow/ee250-final.git',
+    url='https://github.com/emilyxzhou/ee250-final.git',
     install_requires=[
-        'discord'
+        'discord',
+        'paho-mqtt'
     ],
     python_requires='>=3.6',
 )
