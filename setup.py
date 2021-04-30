@@ -11,7 +11,8 @@ setup(
     url='https://github.com/emilyxzhou/ee250-final.git',
     install_requires=[
         'discord',
-        'paho-mqtt'
+        'paho-mqtt',
+        'schedule'
     ],
     python_requires='>=3.6',
 )
