@@ -1,3 +1,0 @@
-from servo import *
-
-servocall()
