@@ -47,7 +47,7 @@ if __name__ == '__main__':
             setText(l1+"\n"+"Taking photo...")
             setRGB(255,0,0)
             
-            print("calling bash script now")
+            #print("calling bash script now")
             rc = subprocess.call("./snapshot.sh")
 
         else:
