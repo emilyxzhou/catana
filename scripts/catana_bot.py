@@ -3,7 +3,6 @@
 from discord.ext import commands
 from discord_pub import DiscordPub
 import logging
-import os
 import random
 import sys
 
