@@ -4,6 +4,7 @@ from setuptools import setup
 setup(
     name='ee250-final',
     version='1.0.1',
+    packages=['discord_bot', 'user'],
     description='Use Discord and a Raspberry Pi to control an automatic cat feeder.',
     license='MIT',
     author='Emily Zhou, Jocelyn Liu',
