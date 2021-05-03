@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.8
 
-from discord_pub import Topics
+from discord_pub import Commands, Topics
 import grovepi
 import grove_rgb_lcd
 import logging
@@ -25,6 +25,8 @@ class RpiController:
     def __init__(self, username, host, port, keepalive):
         self._uson = 4  # D4
         self._uson_threshold = 10
+        self._led = 3  # D3
+        grovepi.pinMode(self._led, "OUTPUT")
         grove_rgb_lcd.setRGB(0, 255, 0)
 
         self._username = username
@@ -78,6 +80,12 @@ class RpiController:
     def _led_callback(self, client, userdata, msg):
         msg = msg.payload.decode("utf-8")
         logging.info("Message received by led subscriber: {}".format(msg))
+        if msg == Commands.LED_ON:
+            grovepi.digitalWrite(self._led, 1)
+        elif msg == Commands.LED_OFF:
+            grovepi.digitalWrite(self._led, 1)
+        else:
+            logging.info("LED callback for RPi node received invalid command: {}".format(msg))
 
     def _take_photo(self):
         subprocess.call("./{}".format(SNAPSHOT_SCRIPT_PATH))
@@ -86,9 +94,11 @@ class RpiController:
 if __name__ == "__main__":
     if len(sys.argv) != 4:
         raise SystemExit("This script requires the following arguments: image filepath, MQTT host, and port.")
+    username = sys.argv[1]
     host = sys.argv[2]
     port = sys.argv[3]
     rpi_controller = RpiController(
+        username=username,
         host=host,
         port=port,
         keepalive=60
