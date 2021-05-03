@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.8
 
-from discord_bot import Commands, Topics
+from discord_pub import Commands, Topics
 import grovepi
 import grove_rgb_lcd
 import logging
