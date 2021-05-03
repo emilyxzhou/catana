@@ -29,17 +29,16 @@ class CatanaBot(commands.Bot):
 
 
 if __name__ == "__main__":
-    # if len(sys.argv) != 4:
-    #     raise SystemExit("This script requires the following arguments: image filepath, MQTT host, and port.")
-    # host = sys.argv[2]
-    # port = sys.argv[3]
-    keepalive = 60
+    if len(sys.argv) != 4:
+        raise SystemExit("This script requires the following arguments: image filepath, MQTT host, and port.")
+    host = sys.argv[2]
+    port = sys.argv[3]
     bot = CatanaBot(command_prefix=commands.when_mentioned)
     discord_pub = DiscordPub(
         bot=bot,
         channel_id=CHANNEL_ID,
-        host="localhost",
-        port=1883,
+        host=host,
+        port=port,
         keepalive=60
     )
     bot.add_cog(discord_pub)

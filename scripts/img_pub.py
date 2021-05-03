@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 def on_connect(client, userdata, flags, rc):
-    logging.info("Connected to server (i.e., broker) with result code " + str(rc))
+    logging.info("Connected to server with result code " + str(rc))
 
 
 def on_message(client, userdata, msg):
@@ -18,7 +18,7 @@ if __name__ == '__main__':
     if len(sys.argv) != 4:
         raise SystemExit("This script requires the following arguments: image filepath, MQTT host, and port.")
     host = sys.argv[2]
-    port = sys.argv[3]
+    port = int(sys.argv[3])
     keepalive = 60
     client = mqtt.Client()
     client.on_message = on_message

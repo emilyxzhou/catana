@@ -47,6 +47,8 @@ class RpiController:
 
     def _on_connect(self, client, userdata, flags, rc):
         logging.info("MQTT publisher client connected to server with code {}".format(str(rc)))
+        self._client.message_callback_add(Topics.FEEDER, self._feeder_topic)
+        self._client.message_callback_add(Topics.LED, self._led_topic)
 
     def _feeder_callback(self, client, userdata, msg):
         msg = msg.payload.decode("utf-8")
@@ -78,4 +80,16 @@ class RpiController:
         logging.info("Message received by led subscriber: {}".format(msg))
 
     def _take_photo(self):
-        subprocess.call("./snapshot.sh")
+        subprocess.call("./{}".format(SNAPSHOT_SCRIPT_PATH))
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 4:
+        raise SystemExit("This script requires the following arguments: image filepath, MQTT host, and port.")
+    host = sys.argv[2]
+    port = sys.argv[3]
+    rpi_controller = RpiController(
+        host=host,
+        port=port,
+        keepalive=60
+    )
