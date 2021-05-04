@@ -8,8 +8,11 @@ class User:
 
     def __init__(self, name):
         self._name = name
+        self._image_file_name = "{}_image.png".format(self._name)
         self._feeder_topic = "{}/feeder".format(self._name)
         self._led_topic = "{}/LED".format(self._name)
+        print(self._feeder_topic)
+        print(self._led_topic)
         self._feeding_times = []
 
     def add_feeding_times(self, times):
@@ -23,6 +26,10 @@ class User:
     @property
     def name(self):
         return self._name
+
+    @property
+    def image_file_name(self):
+        return self._image_file_name
 
     @property
     def feeder_topic(self):
