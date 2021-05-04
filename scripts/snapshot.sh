@@ -1,7 +1,9 @@
 #!/bin/bash
 
-DATE=$(date +"%Y-%m-%d_%H%M")
-fswebcam --no-banner /home/pi/Documents/ee250-final/$DATE.jpg
+FILE_NAME=$1
+HOST=$2
+PORT=$3
+fswebcam --no-banner /home/pi/Documents/ee250-final/$FILE_NAME.jpg
 
-python3 img_pub.py $DATE.jpg
-rm $DATE.jpg
+python3 img_pub.py $FILE_NAME.jpg $HOST $PORT
+rm $FILE_NAME.jpg

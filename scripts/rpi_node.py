@@ -23,6 +23,10 @@ SNAPSHOT_SCRIPT_PATH = os.path.join(dirname, 'snapshot.sh')
 class RpiController:
 
     def __init__(self, username, host, port, keepalive):
+        self._username = username
+        self._host = host
+        self._port = port
+
         self._uson = 4  # D4
         self._uson_threshold = 10
         self._led = 3  # D3
@@ -37,7 +41,7 @@ class RpiController:
 
         self._client = mqtt.Client()
         self._client.on_connect = self._on_connect
-        self._client.connect(host=host, port=port, keepalive=keepalive)
+        self._client.connect(host=self._host, port=self._port, keepalive=keepalive)
         self._client.loop_start()
 
     def run(self):
@@ -91,7 +95,7 @@ class RpiController:
             logging.info("LED callback for RPi node received invalid command: {}".format(msg))
 
     def _take_photo(self):
-        subprocess.call("./{}".format(SNAPSHOT_SCRIPT_PATH))
+        subprocess.call(["./{}".format(SNAPSHOT_SCRIPT_PATH), self._username, self._host, self._port])
 
 
 if __name__ == "__main__":
