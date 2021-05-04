@@ -32,6 +32,8 @@ class RpiController:
         self._username = username
         self._feeder_topic = Topics.FEEDER.format(username=username)
         self._led_topic = Topics.LED.format(username=username)
+        print(self._feeder_topic)
+        print(self._led_topic)
 
         self._client = mqtt.Client()
         self._client.on_connect = self._on_connect
@@ -43,14 +45,15 @@ class RpiController:
         line1 = "{dist} cm away   ".format(dist=str(dist))
         if dist <= self._uson_threshold:
             self._take_photo()
-        else:
-            grove_rgb_lcd.setText_norefresh("{}\n               ".format(line1))
-            grove_rgb_lcd.setRGB(0, 255, 0)
+        grove_rgb_lcd.setText_norefresh("{}\n               ".format(line1))
+        grove_rgb_lcd.setRGB(0, 255, 0)
 
     def _on_connect(self, client, userdata, flags, rc):
         logging.info("MQTT publisher client connected to server with code {}".format(str(rc)))
-        self._client.message_callback_add(Topics.FEEDER, self._feeder_topic)
-        self._client.message_callback_add(Topics.LED, self._led_topic)
+        self._client.subscribe(self._feeder_topic)
+        self._client.subscribe(self._led_topic)
+        self._client.message_callback_add(self._feeder_topic, self._feeder_callback)
+        self._client.message_callback_add(self._led_topic, self._led_callback)
 
     def _feeder_callback(self, client, userdata, msg):
         msg = msg.payload.decode("utf-8")
@@ -83,7 +86,7 @@ class RpiController:
         if msg == Commands.LED_ON:
             grovepi.digitalWrite(self._led, 1)
         elif msg == Commands.LED_OFF:
-            grovepi.digitalWrite(self._led, 1)
+            grovepi.digitalWrite(self._led, 0)
         else:
             logging.info("LED callback for RPi node received invalid command: {}".format(msg))
 
@@ -93,13 +96,17 @@ class RpiController:
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        raise SystemExit("This script requires the following arguments: image filepath, MQTT host, and port.")
+        raise SystemExit("This script requires the following arguments: discord username, MQTT host, and port.")
     username = sys.argv[1]
     host = sys.argv[2]
-    port = sys.argv[3]
+    port = int(sys.argv[3])
     rpi_controller = RpiController(
         username=username,
         host=host,
         port=port,
         keepalive=60
     )
+
+    while True:
+        rpi_controller.run()
+        time.sleep(1)
