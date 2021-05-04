@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import discord
 from discord.ext import commands, tasks
+from ee250_final.user import User
 import io
 import json
 import logging
@@ -9,7 +10,8 @@ import os
 import paho.mqtt.client as mqtt
 from PIL import Image
 import schedule
-from ee250_final.user import User
+import threading
+import time
 
 logging.basicConfig(level=logging.INFO)
 
@@ -29,6 +31,11 @@ class Topics:
 class DiscordPub(commands.Cog):
 
     def __init__(self, bot: commands.Bot, channel_id, host, port, keepalive):
+        self._feeder_scheduler = schedule.Scheduler()
+        self._sched_stop = threading.Event()
+        self._scheduler_thread = threading.Thread(target=self._feeder_timer)
+        self._scheduler_thread.start()
+
         self._bot = bot
         self._channel_id = channel_id
         self._mqtt_client = mqtt.Client()
@@ -38,10 +45,12 @@ class DiscordPub(commands.Cog):
         self._users = []
         self._image_data = {}
 
-        self._feeder_scheduler = schedule.Scheduler()
-
         self.check_for_images_to_send.start()
-        self.run_scheduler_once()
+
+    def _feeder_timer(self):
+        while not self._sched_stop.is_set():
+            self._feeder_scheduler.run_pending()
+            time.sleep(10)
 
     def _on_connect(self, client, userdata, flags, rc):
         logging.info("MQTT publisher client connected to server with code {}".format(str(rc)))
@@ -72,10 +81,6 @@ class DiscordPub(commands.Cog):
             await channel.send("{name}: image taken from webcam".format(name=username))
             await channel.send(file=discord.File(image_file_path))
             os.remove(image_file_path)
-
-    @tasks.loop(seconds=10.0)
-    def run_scheduler_once(self):
-        self._feeder_scheduler.run_pending()
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
