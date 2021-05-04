@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.8
 
 from discord.ext import commands
-from discord_pub import DiscordPub
+from ee250_final.discord_pub import DiscordPub
 import logging
 import random
 import sys

@@ -9,7 +9,7 @@ import os
 import paho.mqtt.client as mqtt
 from PIL import Image
 import schedule
-from user import User
+from ee250_final.user import User
 
 logging.basicConfig(level=logging.INFO)
 
