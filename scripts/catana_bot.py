@@ -28,10 +28,10 @@ class CatanaBot(commands.Bot):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        raise SystemExit("This script requires the following arguments: image filepath, MQTT host, and port.")
-    host = sys.argv[2]
-    port = sys.argv[3]
+    if len(sys.argv) != 3:
+        raise SystemExit("This script requires the following arguments: MQTT host and port.")
+    host = sys.argv[1]
+    port = int(sys.argv[2])
     bot = CatanaBot(command_prefix=commands.when_mentioned)
     discord_pub = DiscordPub(
         bot=bot,

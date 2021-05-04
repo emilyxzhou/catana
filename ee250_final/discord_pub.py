@@ -134,7 +134,10 @@ class DiscordPub(commands.Cog):
         name = message.author.name
         self._create_user_if_not_exists(name)
         user = self._find_user(name)
-        self._mqtt_client.publish(user.led_topic, Commands.LED_OFF)
+        logging.info(user)
+        logging.info(user.led_topic)
+        if user is not None:
+            self._mqtt_client.publish(user.led_topic, Commands.LED_OFF)
 
     @commands.command(
         name="LED_on", help="Send message to RPI to turn on LED"
