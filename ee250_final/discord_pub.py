@@ -43,7 +43,7 @@ class DiscordPub(commands.Cog):
         self._mqtt_client.connect(host=host, port=port, keepalive=keepalive)
         self._mqtt_client.loop_start()
         self._users = []
-        self._image_data = {}
+        self._is_publish_image = False
 
         self.check_for_images_to_send.start()
 
@@ -58,31 +58,18 @@ class DiscordPub(commands.Cog):
         self._mqtt_client.message_callback_add(Topics.IMAGE, self._save_image_data)
 
     def _save_image_data(self, client, userdata, msg):
-        msg = msg.payload.decode("utf-8")
-        msg = json.loads(msg)
-        username = msg["username"]
-        image_data = msg["image_data"]
-        user: User = self._find_user(username)
-        if not User:
-            raise ValueError("No user with the username \'{}\'".format(username))
-        image_file_name = os.path.join(user.image_file_name)
-        self._save_image_to_file(image_data, image_file_name)
-        self._image_data[username] = image_file_name
-
-    def _save_image_to_file(self, bytes_array, file_path):
-        image = Image.open(io.BytesIO(bytes_array))
-        image.save(file_path)
+        with open("scripts/temp.jpg", "wb") as f:
+            f.write(msg.payload)
+        self._is_publish_image = True
 
     @tasks.loop(seconds=10.0)
     async def check_for_images_to_send(self):
-        for username in self._image_data:
-            image_file_path = self._image_data.pop(username)
-            if image_file_path is not None:
-                channel = await self._bot.fetch_channel(self._channel_id)
-                await channel.send("{name}: image taken from webcam".format(name=username))
-                await channel.send(file=discord.File(image_file_path))
-                os.remove(image_file_path)
-                self._image_data[username] = None
+        if self._is_publish_image:
+            channel = await self._bot.fetch_channel(self._channel_id)
+            await channel.send(file=discord.File("scripts/temp.jpg"))
+            logging.info("Image sent from bot")
+            os.remove("scripts/temp.jpg")
+            self._is_publish_image = False
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
@@ -95,7 +82,7 @@ class DiscordPub(commands.Cog):
     )
     async def ask_to_set_times(self, message: discord.Message):
         name = message.author.name
-        self._create_user_if_not_exists(name)
+        user = self._find_user(name)
 
         await message.channel.send("enter times (hh:mm:ss) separated by a space.")
 
@@ -117,7 +104,7 @@ class DiscordPub(commands.Cog):
                 "sorry, you took too long. please enter the command again."
             )
 
-        self._save_times(times, name)
+        self._save_times(times, user)
         await message.channel.send("cool, thanks!")
 
     @commands.command(
@@ -125,7 +112,6 @@ class DiscordPub(commands.Cog):
     )
     async def send_feed_command(self, message: discord.Message):
         name = message.author.name
-        self._create_user_if_not_exists(name)
         user: User = self._find_user(name)
         self._mqtt_client.publish(user.feeder_topic, Commands.FEED)
 
@@ -134,7 +120,6 @@ class DiscordPub(commands.Cog):
     )
     async def turn_led_off(self, message: discord.Message):
         name = message.author.name
-        self._create_user_if_not_exists(name)
         user = self._find_user(name)
         logging.info(user)
         logging.info(user.led_topic)
@@ -146,23 +131,26 @@ class DiscordPub(commands.Cog):
     )
     async def turn_led_on(self, message: discord.Message):
         name = message.author.name
-        self._create_user_if_not_exists(name)
         user = self._find_user(name)
         self._mqtt_client.publish(user.led_topic, Commands.LED_ON)
 
     def add_user(self, name: str):
-        self._users.append(User(name))
+        user = User(name)
+        self._users.append(user)
         logging.info("New user added: {}".format(name))
+        return user
 
-    def _find_user(self, name: str):
+    def _find_user(self, name: str, create_user_if_not_exists=True):
+        user_to_return = None
         for user in self._users:
             if user.name == name:
                 return user
-        return None
+        if create_user_if_not_exists:
+            user_to_return = self.add_user(name)
+        return user_to_return
 
-    def _save_times(self, message: discord.Message, name: str):
+    def _save_times(self, message: discord.Message, user: User):
         times_array = message.content.split()
-        user: User = self._find_user(name)
         user.add_feeding_times(times_array)
         for time in times_array:
             self._feeder_scheduler.every().day.at(time).do(
@@ -170,7 +158,3 @@ class DiscordPub(commands.Cog):
                 user.feeder_topic,
                 Commands.FEED
             )
-
-    def _create_user_if_not_exists(self, name):
-        if not self._find_user(name):
-            self.add_user(name)
