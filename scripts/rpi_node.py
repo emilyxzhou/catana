@@ -95,7 +95,7 @@ class RpiController:
             logging.info("LED callback for RPi node received invalid command: {}".format(msg))
 
     def _take_photo(self):
-        subprocess.call(["./{}".format(SNAPSHOT_SCRIPT_PATH), self._username, self._host, self._port])
+        subprocess.call(["./{}".format(SNAPSHOT_SCRIPT_PATH), self._username, self._host, str(self._port)])
 
 
 if __name__ == "__main__":
