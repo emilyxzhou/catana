@@ -1,3 +1,4 @@
+import json
 import logging
 import paho.mqtt.client as mqtt
 import sys
@@ -16,7 +17,8 @@ def on_message(client, userdata, msg):
 
 if __name__ == '__main__':
     if len(sys.argv) != 4:
-        raise SystemExit("This script requires the following arguments: image filepath, MQTT host, and port.")
+        raise SystemExit("This script requires the following arguments: username, MQTT host, and port.")
+    username = sys.argv[1]
     host = sys.argv[2]
     port = int(sys.argv[3])
     keepalive = 60
@@ -30,5 +32,10 @@ if __name__ == '__main__':
     fileContent = f.read()
     byteArr = bytearray(fileContent)
 
-    client.publish("rpi/webcam", byteArr)
+    message = json.dumps({
+        "username": username,
+        "image_data": byteArr
+    })
+
+    client.publish("rpi/webcam", message)
     time.sleep(5)

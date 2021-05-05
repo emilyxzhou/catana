@@ -65,7 +65,7 @@ class DiscordPub(commands.Cog):
         user: User = self._find_user(username)
         if not User:
             raise ValueError("No user with the username \'{}\'".format(username))
-        image_file_name = os.path.join( user.image_file_name)
+        image_file_name = os.path.join(user.image_file_name)
         self._save_image_to_file(image_data, image_file_name)
         self._image_data[username] = image_file_name
 
@@ -77,10 +77,12 @@ class DiscordPub(commands.Cog):
     async def check_for_images_to_send(self):
         for username in self._image_data:
             image_file_path = self._image_data.pop(username)
-            channel = await self._bot.fetch_channel(self._channel_id)
-            await channel.send("{name}: image taken from webcam".format(name=username))
-            await channel.send(file=discord.File(image_file_path))
-            os.remove(image_file_path)
+            if image_file_path is not None:
+                channel = await self._bot.fetch_channel(self._channel_id)
+                await channel.send("{name}: image taken from webcam".format(name=username))
+                await channel.send(file=discord.File(image_file_path))
+                os.remove(image_file_path)
+                self._image_data[username] = None
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
