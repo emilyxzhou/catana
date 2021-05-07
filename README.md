@@ -9,4 +9,4 @@
 * On your RPi, run `rpi_node.py` with your Discord username and the MQTT host and port as command line args: `python3 scripts/rpi_node.py <your username> <host> <port>`
 
 ## Link to demo video:
-* https://drive.google.com/file/d/1Le-p9hBEgUKTVIAEHEqqtnntRediQS29/view?usp=sharing
+* https://drive.google.com/file/d/1LrGXez5aX4buRPkPfVqsNW1muaPkPUAs/view?usp=sharing
