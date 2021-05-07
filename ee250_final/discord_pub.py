@@ -24,7 +24,7 @@ class Commands:
 
 class Topics:
     FEEDER = "{username}/feeder"
-    IMAGE = "rpi/image"
+    IMAGE = "rpi/webcam"
     LED = "{username}/LED"
 
 
