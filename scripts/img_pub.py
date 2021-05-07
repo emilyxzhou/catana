@@ -30,12 +30,7 @@ if __name__ == '__main__':
 
     f = open(sys.argv[1], "rb")
     fileContent = f.read()
-    byteArr = bytearray(fileContent)
+    byteArr = bytes(fileContent)
 
-    message = json.dumps({
-        "username": username,
-        "image_data": byteArr
-    })
-
-    client.publish("rpi/webcam", message)
+    client.publish("rpi/webcam", byteArr)
     time.sleep(5)

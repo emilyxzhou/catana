@@ -28,7 +28,7 @@ class RpiController:
         self._port = port
 
         self._uson = 4  # D4
-        self._uson_threshold = 10
+        self._uson_threshold = 15
         self._led = 3  # D3
         grovepi.pinMode(self._led, "OUTPUT")
         grove_rgb_lcd.setRGB(0, 255, 0)
@@ -48,6 +48,8 @@ class RpiController:
         dist = grovepi.ultrasonicRead(self._uson)
         line1 = "{dist} cm away   ".format(dist=str(dist))
         if dist <= self._uson_threshold:
+            grove_rgb_lcd.setRGB(255,0,0)
+            grove_rgb_lcd.setText_norefresh(str(dist)+" cm away  "+"\n"+"Taking photo...")
             self._take_photo()
         grove_rgb_lcd.setText_norefresh("{}\n               ".format(line1))
         grove_rgb_lcd.setRGB(0, 255, 0)
@@ -73,7 +75,7 @@ class RpiController:
 
         time.sleep(2)
 
-        duty = 7
+        duty = 8
         while duty <= 10:
             servo.ChangeDutyCycle(duty)
             time.sleep(0.25)
