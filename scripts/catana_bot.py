@@ -8,10 +8,8 @@ import sys
 
 logging.basicConfig(level=logging.INFO)
 
-# TOKEN = os.environ["DISCORD_TOKEN"]
-# CHANNEL_ID = int(os.environ["DISCORD_CHANNEL_ID"])
-TOKEN = "ODM3NDU2OTM4MzA0Mjc0NTMy.YIs0jQ.ytoqi_pd8XJu7BqHn9kFDfp-H7c"
-CHANNEL_ID = 838093576813936691
+TOKEN = os.environ["DISCORD_TOKEN"]
+CHANNEL_ID = int(os.environ["DISCORD_CHANNEL_ID"])
 
 
 class CatanaBot(commands.Bot):
